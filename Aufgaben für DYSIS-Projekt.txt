@@ -15,7 +15,7 @@ Aufgaben für DYSIS-Projekt
 
 
 Aufgabenaufteilung:
-1) Community Energy Producer and User and Percentage Service
-2) REST API
-3) GUI
-4) Usage Service
+1) Community Energy Producer and User and Percentage Service  (Lukas)
+2) REST API                                                   (Marko)
+3) GUI                                                        (Chamberg)
+4) Usage Service                                              (Richard)
