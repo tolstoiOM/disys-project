@@ -1,4 +1,4 @@
-Aufgaben für DYSIS-Projekt
+Aufgaben für DISYS-Projekt
 
 - Community Energy Producer (component)
 -- sends Message of the production (careful weather affects the production)
