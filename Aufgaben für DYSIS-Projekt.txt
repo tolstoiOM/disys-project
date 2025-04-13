@@ -1,0 +1,21 @@
+Aufgaben für DYSIS-Projekt
+
+- Community Energy Producer (component)
+-- sends Message of the production (careful weather affects the production)
+- Community Energy User (component)
+-- sends message of the usage (peak hours are in the morning and in the evening)
+- Usage Service (component)
+-- update db on full hours
+-- when community energy was used fully then use grid energy
+- Current Percentage Service (component)
+-- calculate the percentage use of the energy pools
+- GUI with JavaFX
+- REST API
+-- does not put in, only read function (GET)
+
+
+Aufgabenaufteilung:
+1) Community Energy Producer and User and Percentage Service
+2) REST API
+3) GUI
+4) Usage Service
