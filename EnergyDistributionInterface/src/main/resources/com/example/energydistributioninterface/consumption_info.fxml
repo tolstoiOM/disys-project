@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="260.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane fx:controller="com.example.energydistributioninterface.Controller" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="260.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="579.0" minWidth="10.0" prefWidth="299.0" />
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="387.0" minWidth="0.0" prefWidth="1.0" />
@@ -33,6 +33,22 @@
                         <Font size="15.0" />
                      </font>
                   </Label>
+                  <Label fx:id="communityResultLabel" text="0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label text="\% used">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Label>
                </children>
             </HBox>
             <HBox prefHeight="27.0" prefWidth="304.0">
@@ -42,9 +58,22 @@
                         <Font size="15.0" />
                      </font>
                   </Label>
+                  <Label fx:id="gridResultLabel" text="0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label text="\%">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
                </children>
             </HBox>
-            <Button mnemonicParsing="false" prefHeight="23.0" prefWidth="71.0" text="Refresh">
+            <Button fx:id="fetchButton" onAction="#fetchButtonAction" mnemonicParsing="false" prefHeight="23.0" prefWidth="71.0" text="Refresh">
                <VBox.margin>
                   <Insets left="80.0" />
                </VBox.margin>
@@ -68,7 +97,7 @@
                         <Font size="15.0" />
                      </font>
                   </Label>
-                  <DatePicker>
+                  <DatePicker fx:id="startDatePicker">
                      <HBox.margin>
                         <Insets left="20.0" />
                      </HBox.margin>
@@ -82,14 +111,14 @@
                         <Font size="15.0" />
                      </font>
                   </Label>
-                  <DatePicker>
+                  <DatePicker fx:id="endDatePicker">
                      <HBox.margin>
                         <Insets left="25.0" />
                      </HBox.margin>
                   </DatePicker>
                </children>
             </HBox>
-            <Button mnemonicParsing="false" prefHeight="13.0" prefWidth="72.0" text="Show data">
+            <Button fx:id="showDataButton" onAction="#fetchHistoricData" mnemonicParsing="false" prefHeight="13.0" prefWidth="72.0" text="Show data">
                <VBox.margin>
                   <Insets left="80.0" />
                </VBox.margin>
@@ -104,32 +133,92 @@
             <Insets left="10.0" />
          </GridPane.margin>
       </VBox>
-      <VBox prefHeight="141.0" prefWidth="260.0" GridPane.rowIndex="2">
+      <VBox prefHeight="85.0" prefWidth="260.0" GridPane.rowIndex="2">
          <children>
-            <Label prefHeight="21.0" prefWidth="237.0" text="Community produced:">
-               <font>
-                  <Font size="15.0" />
-               </font>
-               <padding>
-                  <Insets left="10.0" />
-               </padding>
-            </Label>
-            <Label text="Community used: ">
-               <font>
-                  <Font size="15.0" />
-               </font>
-               <padding>
-                  <Insets left="10.0" />
-               </padding>
-            </Label>
-            <Label text="Grid used:">
-               <font>
-                  <Font size="15.0" />
-               </font>
-               <padding>
-                  <Insets left="10.0" />
-               </padding>
-            </Label>
+            <HBox prefHeight="23.0" prefWidth="260.0">
+               <children>
+                  <Label text="Community produced:">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="communityProducedLabel"  text="0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label text="kWh">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox prefHeight="26.0" prefWidth="260.0">
+               <children>
+                  <Label  text="Community used: ">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+                  <Label fx:id="communityUsedLabel" text="0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label text="kWh">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox prefHeight="28.0" prefWidth="260.0">
+               <children>
+                  <Label  text="Grid used:">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+                  <Label fx:id="gridUsedLabel" text="0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label text="kWh">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
          </children>
       </VBox>
    </children>
