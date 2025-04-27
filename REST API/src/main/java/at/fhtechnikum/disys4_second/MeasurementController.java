@@ -10,7 +10,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/measurements")
 public class MeasurementController {
-    LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
     private final MeasurementRepository measurementRepository;
 
     @Autowired
@@ -18,9 +17,14 @@ public class MeasurementController {
         this.measurementRepository = measurementRepository;
     }
 
+    @GetMapping
+    public List<Measurement> getAllMeasurements() {
+        return measurementRepository.findAll();
+    }
+
     @GetMapping("/current-hour")
     public List<Measurement> getCurrentHourData() {
-        LocalDateTime simulatedNow = LocalDateTime.of(2023, 10, 1, 11, 0);
+        LocalDateTime simulatedNow = LocalDateTime.of(2023, 10, 1, 14, 30);
         return measurementRepository.findByHour(simulatedNow);
     }
 

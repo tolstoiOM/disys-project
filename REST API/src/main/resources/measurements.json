@@ -1,10 +1,18 @@
 [
   {
-    "timestamp": "2023-10-01T10:00:00",
-    "consumption": 5.5
+    "timestamp": "2023-10-01T14:30:00",
+    "consumption": 150.5,
+    "hour": 14,
+    "community_produced": 120.0,
+    "community_used": 80.0,
+    "grid_used": 30.5
   },
   {
-    "timestamp": "2023-10-01T11:00:00",
-    "consumption": 7.2
+    "timestamp": "2023-10-01T15:30:00",
+    "consumption": 160.0,
+    "hour": 15,
+    "community_produced": 130.0,
+    "community_used": 90.0,
+    "grid_used": 40.0
   }
 ]

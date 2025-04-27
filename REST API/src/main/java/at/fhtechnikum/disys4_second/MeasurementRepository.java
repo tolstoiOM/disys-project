@@ -16,13 +16,12 @@ public class MeasurementRepository {
 
     public MeasurementRepository() {
         this.measurements = loadMeasurementsFromJson();
-
         System.out.println("Geladene Messwerte: " + measurements);
     }
 
     private List<Measurement> loadMeasurementsFromJson() {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule()); // Modul registrieren
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
         try (InputStream inputStream = getClass().getResourceAsStream("/measurements.json")) {
             if (inputStream == null) {
                 throw new IOException("JSON-Datei nicht gefunden");
@@ -41,7 +40,6 @@ public class MeasurementRepository {
     public List<Measurement> findByHour(LocalDateTime hour) {
         List<Measurement> result = new ArrayList<>();
         for (Measurement measurement : measurements) {
-            System.out.println("Prüfe Messwert: " + measurement);
             if (measurement.getTimestamp().getHour() == hour.getHour() &&
                     measurement.getTimestamp().toLocalDate().equals(hour.toLocalDate())) {
                 result.add(measurement);
