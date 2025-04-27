@@ -1,13 +1,13 @@
-package com.exampleMarko.demoMarko;
+package at.fhtechnikum.disys4_second;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoMarkoApplicationTests {
+class Disys4SecondApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
