@@ -1,37 +1,54 @@
 package org.example;
+
 import org.json.JSONObject;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
-@Component
 public class UserMessageGenerator {
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     private static final String QUEUE_NAME = "energy.queue";
     private static final String COMMUNITY = "COMMUNITY";
 
-    @Scheduled(fixedRate = 7000) // alle 7 Sekunden
-    public void generateAndSendMessage() {
-        double kwh = generateKwhBasedOnTime();
-        JSONObject msg = new JSONObject();
-        msg.put("type", "USER");
-        msg.put("association", COMMUNITY);
-        msg.put("kwh", kwh);
-        msg.put("datetime", LocalDateTime.now().toString());
+    public static void main(String[] args) {
+        // RabbitMQ Verbindung aufbauen
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
 
-        rabbitTemplate.convertAndSend(QUEUE_NAME, msg.toString());
-        System.out.println("User sent: " + msg);
+        // Queue muss existieren oder deklariert werden (vereinfacht)
+        rabbitTemplate.execute(channel -> {
+            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+            return null;
+        });
+
+        // Alle 7 Sekunden neue Message erzeugen & senden
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    double kwh = generateKwhBasedOnTime();
+                    JSONObject msg = new JSONObject();
+                    msg.put("type", "USER");
+                    msg.put("association", COMMUNITY);
+                    msg.put("kwh", kwh);
+                    msg.put("datetime", LocalDateTime.now().toString());
+
+                    rabbitTemplate.convertAndSend(QUEUE_NAME, msg.toString());
+                    System.out.println("✅ Gesendet: " + msg.toString());
+                } catch (Exception e) {
+                    System.err.println("❌ Fehler beim Senden der Message: " + e.getMessage());
+                }
+            }
+        }, 0, 7000); // 7 Sekunden
     }
 
-    private double generateKwhBasedOnTime() {
+    private static double generateKwhBasedOnTime() {
         LocalTime now = LocalTime.now();
         Random random = new Random();
 

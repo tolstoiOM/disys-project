@@ -1,22 +1,23 @@
 package org.example;
+
 public class Main {
     public static void main(String[] args) {
         // UserMessageGenerator starten
         Thread userMessageThread = new Thread(() -> {
-            UserMessageGenerator userMessageGenerator = new UserMessageGenerator();
-            while (true) {
-                userMessageGenerator.generateAndSendMessage();
-                try {
-                    Thread.sleep(7000); // alle 7 Sekunden
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+            try {
+                UserMessageGenerator.main(args);
+            } catch (Exception e) {
+                System.err.println("❌ Fehler im UserMessageGenerator: " + e.getMessage());
             }
         });
 
         // ProducerMessageGenerator starten
         Thread producerMessageThread = new Thread(() -> {
-            ProducerMessageGenerator.main(args);
+            try {
+                ProducerMessageGenerator.main(args);
+            } catch (Exception e) {
+                System.err.println("❌ Fehler im ProducerMessageGenerator: " + e.getMessage());
+            }
         });
 
         // Threads starten

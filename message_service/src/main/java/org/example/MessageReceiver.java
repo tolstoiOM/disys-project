@@ -77,7 +77,11 @@ public class MessageReceiver {
             stmt.setTimestamp(1, Timestamp.valueOf(hour));
             stmt.setDouble(2, type.equals("PRODUCER") ? kwh : 0);
             stmt.setDouble(3, type.equals("USER") ? kwh : 0);
-            stmt.setDouble(4, 0); // Grid usage starts at 0
+            stmt.setDouble(4, type.equals("GRID") ? kwh : 0); // Grid usage aktualisieren
+
+            // Debugging-Ausgabe
+            System.out.println("Update UsageService: hour=" + hour + ", type=" + type + ", kWh=" + kwh);
+            System.out.println("Grid Used: " + (type.equals("GRID") ? kwh : 0));
 
             stmt.executeUpdate();
         }
@@ -87,13 +91,15 @@ public class MessageReceiver {
         String query = "INSERT INTO CurrentPercentageService (hour, community_depleted, grid_portion) " +
                 "VALUES (?, ?, ?) " +
                 "ON CONFLICT (hour) DO UPDATE SET " +
-                "community_depleted = UsageService.community_used / UsageService.community_produced * 100, " +
-                "grid_portion = UsageService.grid_used / (UsageService.community_used + UsageService.grid_used) * 100";
+                "community_depleted = (SELECT CASE WHEN SUM(community_produced) > 0 THEN SUM(community_used) / SUM(community_produced) * 100 ELSE 0 END FROM UsageService WHERE hour = ?), " +
+                "grid_portion = (SELECT CASE WHEN SUM(community_used + grid_used) > 0 THEN SUM(grid_used) / SUM(community_used + grid_used) * 100 ELSE 0 END FROM UsageService WHERE hour = ?)";
 
         try (PreparedStatement stmt = dbConnection.prepareStatement(query)) {
             stmt.setTimestamp(1, Timestamp.valueOf(hour));
-            stmt.setDouble(2, 0); // Initial values
+            stmt.setDouble(2, 0); // Initialwerte
             stmt.setDouble(3, 0);
+            stmt.setTimestamp(4, Timestamp.valueOf(hour)); // Für die Unterabfrage
+            stmt.setTimestamp(5, Timestamp.valueOf(hour)); // Für die Unterabfrage
 
             stmt.executeUpdate();
         }

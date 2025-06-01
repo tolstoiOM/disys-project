@@ -54,6 +54,24 @@ public class ProducerMessageGenerator {
                 }
             }
         }, 0, 10000); // 10 Sekunden
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    double gridKwh = 2.0 + new Random().nextDouble(); // Beispielwert für GRID
+                    JSONObject gridMessage = new JSONObject();
+                    gridMessage.put("type", "GRID");
+                    gridMessage.put("association", "COMMUNITY");
+                    gridMessage.put("kwh", gridKwh);
+                    gridMessage.put("datetime", LocalDateTime.now().toString());
+
+                    rabbitTemplate.convertAndSend(QUEUE_NAME, gridMessage.toString());
+                    System.out.println("✅ GRID Nachricht gesendet: " + gridMessage.toString());
+                } catch (Exception e) {
+                    System.err.println("❌ Fehler beim Senden der GRID-Nachricht: " + e.getMessage());
+                }
+            }
+        }, 0, 15000); // Alle 15 Sekunden
 
     }
 
