@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -24,13 +24,24 @@ public class MeasurementController {
 
     @GetMapping("/current-hour")
     public List<Measurement> getCurrentHourData() {
-        LocalDateTime simulatedNow = LocalDateTime.of(2023, 10, 1, 14, 30);
-        return measurementRepository.findByHour(simulatedNow);
+        LocalDateTime now = LocalDateTime.now();
+        int currentHour = now.getHour(); // Extrahiere die aktuelle Stunde
+        return measurementRepository.findByHour(currentHour);
     }
 
     @GetMapping("/historic")
     public List<Measurement> getHistoricData(@RequestParam("hour") int hour, @RequestParam("date") String date) {
-        LocalDateTime requestedTime = LocalDateTime.parse(date + "T" + String.format("%02d", hour) + ":00:00");
-        return measurementRepository.findByHour(requestedTime);
+        // Validierung und Parsing des Datums
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime requestedDate = LocalDateTime.parse(date, formatter).withHour(hour);
+        return measurementRepository.findByHour(requestedDate.getHour());
+    }
+
+    @GetMapping("/range")
+    public List<Measurement> getMeasurementsInRange(@RequestParam("start") String start, @RequestParam("end") String end) {
+        // Parsing der Start- und Endzeit
+        LocalDateTime startTime = LocalDateTime.parse(start);
+        LocalDateTime endTime = LocalDateTime.parse(end);
+        return measurementRepository.findByTimestampBetween(startTime, endTime);
     }
 }

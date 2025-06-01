@@ -1,23 +1,20 @@
 package at.fhtechnikum.disys4_second;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 public class Measurement {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private LocalDateTime timestamp;
     private double consumption;
-
-    @JsonProperty("hour")
     private int hour;
-
-    @JsonProperty("community_produced")
     private double communityProduced;
-
-    @JsonProperty("community_used")
     private double communityUsed;
-
-    @JsonProperty("grid_used")
     private double gridUsed;
 
     // Standardkonstruktor
@@ -35,6 +32,14 @@ public class Measurement {
     }
 
     // Getter und Setter
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
@@ -86,7 +91,8 @@ public class Measurement {
     @Override
     public String toString() {
         return "Measurement{" +
-                "timestamp=" + timestamp +
+                "id=" + id +
+                ", timestamp=" + timestamp +
                 ", consumption=" + consumption +
                 ", hour=" + hour +
                 ", communityProduced=" + communityProduced +
