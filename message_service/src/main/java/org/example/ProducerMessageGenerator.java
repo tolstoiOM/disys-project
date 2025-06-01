@@ -1,3 +1,4 @@
+package org.example;
 import org.json.JSONObject;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -22,7 +23,7 @@ public class ProducerMessageGenerator {
         // RabbitMQ Verbindung aufbauen
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setQueue(QUEUE_NAME);
+
 
         // Queue muss existieren oder deklariert werden (vereinfacht)
         rabbitTemplate.execute(channel -> {

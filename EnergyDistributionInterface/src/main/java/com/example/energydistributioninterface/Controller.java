@@ -69,13 +69,9 @@ public class Controller {
                     double communityUsed = firstObject.getDouble("community_used");
                     double gridUsed = firstObject.getDouble("grid_used");
 
-                    // Berechnungen
-                    double communityPercentage = (communityProduced > 0)
-                            ? (communityUsed / communityProduced) * 100
-                            : 0;
 
                     // Labels aktualisieren
-                    communityResultLabel.setText(String.format(Locale.US,"%.2f", communityPercentage)); // Prozentwert mit 2 Dezimalstellen
+                    communityResultLabel.setText(String.format(String.valueOf(communityProduced))); // Prozentwert mit 2 Dezimalstellen
                     gridResultLabel.setText(String.valueOf(gridUsed)); // Grid-Wert direkt anzeigen
                 }
             } else {
