@@ -41,13 +41,11 @@ public class Controller {
     @FXML
     public void fetchButtonAction(javafx.event.ActionEvent actionEvent) {
         try {
-            // URL der API
-            URL url = new URL("http://localhost:8080/measurements/current-hour");
+            URL url = new URL("http://localhost:8080/energy/current");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
-            // Überprüfen, ob die Anfrage erfolgreich war
             if (connection.getResponseCode() == 200) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder response = new StringBuilder();
@@ -58,21 +56,23 @@ public class Controller {
                 }
                 reader.close();
 
-                // JSON-Array verarbeiten
                 String jsonResponse = response.toString();
-                org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
-                if (jsonArray.length() > 0) {
-                    org.json.JSONObject firstObject = jsonArray.getJSONObject(0);
 
-                    // Werte aus JSON extrahieren
-                    double communityProduced = firstObject.getDouble("community_produced");
-                    double communityUsed = firstObject.getDouble("community_used");
-                    double gridUsed = firstObject.getDouble("grid_used");
+                if (jsonResponse.trim().startsWith("{")) {
+                    org.json.JSONObject jsonObject = new org.json.JSONObject(jsonResponse);
 
+                    if (jsonObject.has("hour") && jsonObject.has("gridPortion") && jsonObject.has("communityDepleted")) {
+                        String hour = jsonObject.getString("hour");
+                        double gridPortion = jsonObject.getDouble("gridPortion");
+                        double communityDepleted = jsonObject.getDouble("communityDepleted");
 
-                    // Labels aktualisieren
-                    communityResultLabel.setText(String.format(String.valueOf(communityProduced))); // Prozentwert mit 2 Dezimalstellen
-                    gridResultLabel.setText(String.valueOf(gridUsed)); // Grid-Wert direkt anzeigen
+                        communityResultLabel.setText(String.format(Locale.US, "%.2f", communityDepleted / 100));
+                        gridResultLabel.setText(String.format(Locale.US, "%.2f", gridPortion / 100));
+                    } else {
+                        System.out.println("Ein oder mehrere erwartete Schlüssel fehlen in der JSON-Antwort: " + jsonResponse);
+                    }
+                } else {
+                    System.out.println("Unerwartetes JSON-Format: " + jsonResponse);
                 }
             } else {
                 System.out.println("Fehler: " + connection.getResponseCode());
@@ -103,7 +103,7 @@ public class Controller {
             // Iteration über die Stunden zwischen den beiden Zeitpunkten
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                 for (int hour = 0; hour < 24; hour++) {
-                    String urlString = String.format("http://localhost:8080/measurements/historic?hour=%d&date=%s", hour, date);
+                    String urlString = String.format("http://localhost:8080/energy/historical?start=%d&end=%s", hour, date);
                     URL url = new URL(urlString);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
@@ -124,9 +124,9 @@ public class Controller {
                         org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
                         for (int i = 0; i < jsonArray.length(); i++) {
                             org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            totalCommunityProduced += jsonObject.getDouble("community_produced");
-                            totalCommunityUsed += jsonObject.getDouble("community_used");
-                            totalGridUsed += jsonObject.getDouble("grid_used");
+                            totalCommunityProduced += jsonObject.getDouble("communityProduced");
+                            totalCommunityUsed += jsonObject.getDouble("communityUsed");
+                            totalGridUsed += jsonObject.getDouble("gridUsed");
                         }
                     }
                     connection.disconnect();
