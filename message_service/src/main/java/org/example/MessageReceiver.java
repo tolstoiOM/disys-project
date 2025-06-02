@@ -69,19 +69,19 @@ public class MessageReceiver {
         String query = "INSERT INTO UsageService (hour, community_produced, community_used, grid_used) " +
                 "VALUES (?, ?, ?, ?) " +
                 "ON CONFLICT (hour) DO UPDATE SET " +
-                "community_produced = CASE WHEN EXCLUDED.community_produced > 0 THEN UsageService.community_produced + EXCLUDED.community_produced ELSE UsageService.community_produced END, " +
-                "community_used = CASE WHEN EXCLUDED.community_used > 0 THEN UsageService.community_used + EXCLUDED.community_used ELSE UsageService.community_used END, " +
-                "grid_used = CASE WHEN EXCLUDED.grid_used > 0 THEN UsageService.grid_used + EXCLUDED.grid_used ELSE UsageService.grid_used END";
+                "community_produced = CASE WHEN ? = 'PRODUCER' THEN UsageService.community_produced + EXCLUDED.community_produced ELSE UsageService.community_produced END, " +
+                "community_used = CASE WHEN ? = 'USER' THEN LEAST(UsageService.community_produced, UsageService.community_used + EXCLUDED.community_used) ELSE UsageService.community_used END, " +
+                "grid_used = CASE WHEN ? = 'USER' THEN UsageService.grid_used + GREATEST(0, (UsageService.community_used + EXCLUDED.community_used) - UsageService.community_produced) ELSE UsageService.grid_used END";
 
         try (PreparedStatement stmt = dbConnection.prepareStatement(query)) {
             stmt.setTimestamp(1, Timestamp.valueOf(hour));
             stmt.setDouble(2, type.equals("PRODUCER") ? kwh : 0);
             stmt.setDouble(3, type.equals("USER") ? kwh : 0);
-            stmt.setDouble(4, type.equals("GRID") ? kwh : 0); // Grid usage aktualisieren
+            stmt.setDouble(4, 0); // Grid usage starts at 0
 
-            // Debugging-Ausgabe
-            System.out.println("Update UsageService: hour=" + hour + ", type=" + type + ", kWh=" + kwh);
-            System.out.println("Grid Used: " + (type.equals("GRID") ? kwh : 0));
+            stmt.setString(5, type);
+            stmt.setString(6, type);
+            stmt.setString(7, type);
 
             stmt.executeUpdate();
         }
@@ -92,7 +92,7 @@ public class MessageReceiver {
                 "VALUES (?, ?, ?) " +
                 "ON CONFLICT (hour) DO UPDATE SET " +
                 "community_depleted = (SELECT CASE WHEN SUM(community_produced) > 0 THEN SUM(community_used) / SUM(community_produced) * 100 ELSE 0 END FROM UsageService WHERE hour = ?), " +
-                "grid_portion = (SELECT CASE WHEN SUM(community_used + grid_used) > 0 THEN SUM(grid_used) / SUM(community_used + grid_used) * 100 ELSE 0 END FROM UsageService WHERE hour = ?)";
+                "grid_portion = (SELECT CASE WHEN SUM(grid_used + community_used) > 0 THEN SUM(grid_used) / (SUM(grid_used) + SUM(community_used)) * 100 ELSE 0 END FROM UsageService WHERE hour = ?)";
 
         try (PreparedStatement stmt = dbConnection.prepareStatement(query)) {
             stmt.setTimestamp(1, Timestamp.valueOf(hour));

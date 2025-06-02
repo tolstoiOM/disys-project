@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.Locale;
 
@@ -37,6 +38,7 @@ public class Controller {
 
     @FXML
     private DatePicker endDatePicker;
+
 
     @FXML
     public void fetchButtonAction(javafx.event.ActionEvent actionEvent) {
@@ -66,8 +68,8 @@ public class Controller {
                         double gridPortion = jsonObject.getDouble("gridPortion");
                         double communityDepleted = jsonObject.getDouble("communityDepleted");
 
-                        communityResultLabel.setText(String.format(Locale.US, "%.2f", communityDepleted / 100));
-                        gridResultLabel.setText(String.format(Locale.US, "%.2f", gridPortion / 100));
+                        communityResultLabel.setText(String.format(Locale.US, "%.2f", communityDepleted));
+                        gridResultLabel.setText(String.format(Locale.US, "%.2f", gridPortion));
                     } else {
                         System.out.println("Ein oder mehrere erwartete Schlüssel fehlen in der JSON-Antwort: " + jsonResponse);
                     }
@@ -90,7 +92,6 @@ public class Controller {
             // Start- und Enddatum auslesen
             LocalDate startDate = startDatePicker.getValue();
             LocalDate endDate = endDatePicker.getValue();
-
             if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
                 System.out.println("Ungültige Datumsangaben");
                 return;
@@ -100,37 +101,35 @@ public class Controller {
             double totalCommunityUsed = 0;
             double totalGridUsed = 0;
 
-            // Iteration über die Stunden zwischen den beiden Zeitpunkten
+            // Iteration über die Tage zwischen den beiden Zeitpunkten
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                for (int hour = 0; hour < 24; hour++) {
-                    String urlString = String.format("http://localhost:8080/energy/historical?start=%d&end=%s", hour, date);
-                    URL url = new URL(urlString);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setRequestProperty("Accept", "application/json");
+                String urlString = String.format("http://localhost:8080/energy/historical?date=%s", date.toString());
+                URL url = new URL(urlString);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Accept", "application/json");
 
-                    if (connection.getResponseCode() == 200) {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                        StringBuilder response = new StringBuilder();
-                        String line;
+                if (connection.getResponseCode() == 200) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
 
-                        while ((line = reader.readLine()) != null) {
-                            response.append(line);
-                        }
-                        reader.close();
-
-                        // JSON-Array verarbeiten
-                        String jsonResponse = response.toString();
-                        org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            totalCommunityProduced += jsonObject.getDouble("communityProduced");
-                            totalCommunityUsed += jsonObject.getDouble("communityUsed");
-                            totalGridUsed += jsonObject.getDouble("gridUsed");
-                        }
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
                     }
-                    connection.disconnect();
+                    reader.close();
+
+                    // JSON-Array verarbeiten
+                    String jsonResponse = response.toString();
+                    org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        totalCommunityProduced += jsonObject.getDouble("communityProduced");
+                        totalCommunityUsed += jsonObject.getDouble("communityUsed");
+                        totalGridUsed += jsonObject.getDouble("gridUsed");
+                    }
                 }
+                connection.disconnect();
             }
 
             // Labels aktualisieren

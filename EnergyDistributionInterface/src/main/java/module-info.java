@@ -8,6 +8,8 @@ module com.example.energydistributioninterface {
     requires org.kordamp.bootstrapfx.core;
     requires java.desktop;
     requires org.json;
+    requires java.net.http;
+
 
     opens com.example.energydistributioninterface to javafx.fxml;
     exports com.example.energydistributioninterface;
