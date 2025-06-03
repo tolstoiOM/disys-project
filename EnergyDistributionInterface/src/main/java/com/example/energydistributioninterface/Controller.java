@@ -5,16 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 
-import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.Locale;
-
 
 public class Controller {
 
@@ -39,6 +35,11 @@ public class Controller {
     @FXML
     private DatePicker endDatePicker;
 
+    @FXML
+    private javafx.scene.control.TextField startTimeField;
+
+    @FXML
+    private javafx.scene.control.TextField endTimeField;
 
     @FXML
     public void fetchButtonAction(javafx.event.ActionEvent actionEvent) {
@@ -86,53 +87,64 @@ public class Controller {
         }
     }
 
-    @FXML
-    private void fetchHistoricData(javafx.event.ActionEvent actionEvent) {
+    public void fetchHistoricData(javafx.event.ActionEvent actionEvent) {
         try {
-            // Start- und Enddatum auslesen
             LocalDate startDate = startDatePicker.getValue();
             LocalDate endDate = endDatePicker.getValue();
+            String startTimeStr = startTimeField.getText();
+            String endTimeStr = endTimeField.getText();
+
             if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
                 System.out.println("Ungültige Datumsangaben");
                 return;
             }
 
+            java.time.LocalTime startTime = (startTimeStr == null || startTimeStr.isEmpty())
+                    ? java.time.LocalTime.of(0, 0, 0)
+                    : java.time.LocalTime.parse(startTimeStr);
+            java.time.LocalTime endTime = (endTimeStr == null || endTimeStr.isEmpty())
+                    ? java.time.LocalTime.of(23, 59, 59)
+                    : java.time.LocalTime.parse(endTimeStr);
+
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            String startParam = startDate.atTime(startTime).format(formatter);
+            String endParam = endDate.atTime(endTime).format(formatter);
+
+            String urlString = String.format(
+                    "http://localhost:8080/energy/historical?start=%s&end=%s",
+                    startParam, endParam
+            );
+            System.out.println("Request-URL: " + urlString);
+
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
             double totalCommunityProduced = 0;
             double totalCommunityUsed = 0;
             double totalGridUsed = 0;
 
-            // Iteration über die Tage zwischen den beiden Zeitpunkten
-            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                String urlString = String.format("http://localhost:8080/energy/historical?date=%s", date.toString());
-                URL url = new URL(urlString);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "application/json");
-
-                if (connection.getResponseCode() == 200) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                    reader.close();
-
-                    // JSON-Array verarbeiten
-                    String jsonResponse = response.toString();
-                    org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        totalCommunityProduced += jsonObject.getDouble("communityProduced");
-                        totalCommunityUsed += jsonObject.getDouble("communityUsed");
-                        totalGridUsed += jsonObject.getDouble("gridUsed");
-                    }
+            if (connection.getResponseCode() == 200) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
                 }
-                connection.disconnect();
-            }
+                reader.close();
 
-            // Labels aktualisieren
+                String jsonResponse = response.toString();
+                org.json.JSONArray jsonArray = new org.json.JSONArray(jsonResponse);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    totalCommunityProduced += jsonObject.getDouble("communityProduced");
+                    totalCommunityUsed += jsonObject.getDouble("communityUsed");
+                    totalGridUsed += jsonObject.getDouble("gridUsed");
+                }
+            }
+            connection.disconnect();
+
             communityProducedLabel.setText(String.format(Locale.US, "%.2f", totalCommunityProduced));
             communityUsedLabel.setText(String.format(Locale.US, "%.2f", totalCommunityUsed));
             gridUsedLabel.setText(String.format(Locale.US, "%.2f", totalGridUsed));
@@ -141,5 +153,4 @@ public class Controller {
             e.printStackTrace();
         }
     }
-
 }
