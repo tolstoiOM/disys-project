@@ -1,3 +1,10 @@
+//#########################################################################################################################
+//#########################################################################################################################
+//#########################################################################################################################
+//package & imports
+
+
+
 package org.example;
 
 import org.json.JSONObject;
@@ -10,23 +17,37 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
+
+//#########################################################################################################################
+//#########################################################################################################################
+//#########################################################################################################################
+//class
+
+
+
 public class UserMessageGenerator {
 
+    //#########################################################################################################################
+    //variables
     private static final String QUEUE_NAME = "energy.queue";
     private static final String COMMUNITY = "COMMUNITY";
 
+
+    //#########################################################################################################################
+    //main
     public static void main(String[] args) {
-        // RabbitMQ Verbindung aufbauen
+        //build connection RabbitMQ
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
 
-        // Queue muss existieren oder deklariert werden (vereinfacht)
+        //query must exist or to be declared (simplier)
         rabbitTemplate.execute(channel -> {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             return null;
         });
 
-        // Alle 7 Sekunden neue Message erzeugen & senden
+        //every 7s a new message will be generated & send
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -45,19 +66,26 @@ public class UserMessageGenerator {
                     System.err.println("❌ Fehler beim Senden der Message: " + e.getMessage());
                 }
             }
-        }, 0, 7000); // 7 Sekunden
+        }, 0, 7000); //7s
     }
 
+    //generate a random Usage of kwh based on Time
     private static double generateKwhBasedOnTime() {
         LocalTime now = LocalTime.now();
         Random random = new Random();
 
         if (now.isAfter(LocalTime.of(6, 0)) && now.isBefore(LocalTime.of(9, 0))) {
-            return 3.0 + random.nextDouble() * 2.0; // Morgen: 3–5 kWh
+            return 3.0 + random.nextDouble() * 2.0; // morning: 3–5 kWh
         } else if (now.isAfter(LocalTime.of(17, 0)) && now.isBefore(LocalTime.of(21, 0))) {
-            return 3.0 + random.nextDouble() * 2.5; // Abend: 3–5.5 kWh
+            return 3.0 + random.nextDouble() * 2.5; // afternoon: 3–5.5 kWh
         } else {
-            return 0.5 + random.nextDouble() * 2.0; // sonst: 0.5–2.5 kWh
+            return 0.5 + random.nextDouble() * 2.0; // else: 0.5–2.5 kWh
         }
     }
 }
+
+
+
+//#########################################################################################################################
+//#########################################################################################################################
+//#########################################################################################################################

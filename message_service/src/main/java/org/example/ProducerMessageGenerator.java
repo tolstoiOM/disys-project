@@ -1,4 +1,10 @@
+//#########################################################################################################################
+//#########################################################################################################################
+//#########################################################################################################################
+//package & imports
+
 package org.example;
+
 import org.json.JSONObject;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -13,25 +19,39 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
+
+//#########################################################################################################################
+//#########################################################################################################################
+//#########################################################################################################################
+//class
+
+
+
 public class ProducerMessageGenerator {
 
+    //#########################################################################################################################
+    //variables
     private static final String API_KEY = "bfb6969caa254864a2a182551252905";
     private static final String LOCATION = "Korneuburg";
     private static final String QUEUE_NAME = "energy.queue";
 
+
+    //#########################################################################################################################
+    //main
     public static void main(String[] args) {
-        // RabbitMQ Verbindung aufbauen
+        //build connection to RabbitMQ
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
 
 
-        // Queue muss existieren oder deklariert werden (vereinfacht)
+        //query must exist or to be declared (simplier)
         rabbitTemplate.execute(channel -> {
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             return null;
         });
 
-        // Alle 10 Sekunden neue Message erzeugen & senden
+        //every 10s a new message will be generated & send
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -53,12 +73,12 @@ public class ProducerMessageGenerator {
                     System.err.println("❌ Fehler beim Senden der Message: " + e.getMessage());
                 }
             }
-        }, 0, 10000); // 10 Sekunden
+        }, 0, 10000); //10s
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
-                    double gridKwh = 2.0 + new Random().nextDouble(); // Beispielwert für GRID
+                    double gridKwh = 2.0 + new Random().nextDouble();
                     JSONObject gridMessage = new JSONObject();
                     gridMessage.put("type", "GRID");
                     gridMessage.put("association", "COMMUNITY");
@@ -71,11 +91,11 @@ public class ProducerMessageGenerator {
                     System.err.println("❌ Fehler beim Senden der GRID-Nachricht: " + e.getMessage());
                 }
             }
-        }, 0, 15000); // Alle 15 Sekunden
+        }, 0, 15000); //every 15s
 
     }
 
-    // Holt aktuelle Wetterlage aus WeatherAPI
+    //takes actual weatherinformation out of weatherAPI
     public static String getWeatherCondition() {
         try {
             String urlStr = "http://api.weatherapi.com/v1/current.json?key=" + API_KEY + "&q=" + LOCATION + "&aqi=no";
@@ -103,9 +123,9 @@ public class ProducerMessageGenerator {
         }
     }
 
-    // Berechnet Energieproduktion auf Basis der Wetterlage
+    //calculate energyproduction based on the weather
     public static double calculateProduction(String condition) {
-        double baseProduction = 0.5; // Grundproduktion in kWh
+        double baseProduction = 0.5; // baseproduction in kWh
 
         switch (condition.toLowerCase()) {
             case "sunny":
@@ -126,8 +146,14 @@ public class ProducerMessageGenerator {
         }
     }
 
-    // Kleine Zufallsvarianz (z. B. ±0.2 kWh)
+    //small randomvariance (z. B. ±0.2 kWh)
     public static double randomVariation() {
         return new Random().nextDouble() * 0.4 - 0.2;
     }
 }
+
+
+
+//#########################################################################################################################
+//#########################################################################################################################
+//#########################################################################################################################
