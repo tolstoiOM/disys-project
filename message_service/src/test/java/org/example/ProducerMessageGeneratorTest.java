@@ -11,6 +11,7 @@ public class ProducerMessageGeneratorTest {
         assertTrue(result >= 1.8 && result <= 2.2, "Sunny sollte zwischen 1.8 und 2.2 kWh liegen");
     }
 
+
     @Test
     void testRandomVariationRange() {
         for (int i = 0; i < 100; i++) {

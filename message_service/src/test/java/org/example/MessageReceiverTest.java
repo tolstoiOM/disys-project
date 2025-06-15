@@ -54,6 +54,7 @@ public class MessageReceiverTest {
 
         // Erstelle ein JSON-Objekt, das eine gültige Nachricht repräsentiert
         String datetimeStr = "2023-10-01T10:15:30";
+
         JSONObject messageJson = new JSONObject();
         messageJson.put("type", "PRODUCER");
         messageJson.put("association", "COMMUNITY");

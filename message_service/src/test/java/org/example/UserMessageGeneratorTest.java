@@ -14,6 +14,7 @@ public class UserMessageGeneratorTest {
         assertTrue(kwh >= 3.0 && kwh <= 5.0, "Morgens sollte kWh zwischen 3.0 und 5.0 liegen");
     }
 
+
     @Test
     void testGenerateKwhBasedOnTimeOther() {
         // Simuliere Nachtzeit
@@ -22,6 +23,7 @@ public class UserMessageGeneratorTest {
         assertTrue(kwh >= 0.5 && kwh <= 2.5, "Nachts sollte kWh zwischen 0.5 und 2.5 liegen");
     }
 }
+
 
 // Hilfsklasse, um Zeit zu injizieren
 class UserMessageGeneratorTestHelper extends UserMessageGenerator {
