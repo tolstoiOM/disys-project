@@ -70,7 +70,7 @@ public class MessageReceiver {
     //methods
 
     //process received message
-    private static void processMessage(java.sql.Connection dbConnection, JSONObject messageJson) throws SQLException {
+    static void processMessage(java.sql.Connection dbConnection, JSONObject messageJson) throws SQLException {
         //local variables
         String type = messageJson.getString("type");
         String association = messageJson.getString("association");
@@ -88,7 +88,7 @@ public class MessageReceiver {
     }
 
     //update table 'UsageService'
-    private static void updateUsageService(java.sql.Connection dbConnection, LocalDateTime hour, String type, String association, double kwh) throws SQLException {
+    static void updateUsageService(java.sql.Connection dbConnection, LocalDateTime hour, String type, String association, double kwh) throws SQLException {
         //query statement
         String query = "INSERT INTO UsageService (hour, community_produced, community_used, grid_used) " +
                 "VALUES (?, ?, ?, ?) " +
