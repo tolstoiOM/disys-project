@@ -55,10 +55,10 @@ public class MessageReceiver {
             String messageStr = new String(delivery.getBody(), StandardCharsets.UTF_8);
             try {
                 JSONObject messageJson = new JSONObject(messageStr);
-                System.out.println("\n📩 Neue Nachricht empfangen: " + messageJson);
+                System.out.println("\n Neue Nachricht empfangen: " + messageJson);
                 processMessage(dbConnection, messageJson);
             } catch (Exception e) {
-                System.err.println("⚠️ Fehler beim Verarbeiten der Nachricht: " + e.getMessage());
+                System.err.println("Fehler beim Verarbeiten der Nachricht: " + e.getMessage());
             }
         };
 

@@ -69,9 +69,9 @@ public class ProducerMessageGenerator {
 
                     rabbitTemplate.convertAndSend(QUEUE_NAME, message.toString());
 
-                    System.out.println("✅ Gesendet: " + message.toString());
+                    System.out.println("Gesendet: " + message.toString());
                 } catch (Exception e) {
-                    System.err.println("❌ Fehler beim Senden der Message: " + e.getMessage());
+                    System.err.println("Fehler beim Senden der Message: " + e.getMessage());
                 }
             }
         }, 0, 10000); //10s
@@ -87,9 +87,9 @@ public class ProducerMessageGenerator {
                     gridMessage.put("datetime", LocalDateTime.now().toString());
 
                     rabbitTemplate.convertAndSend(QUEUE_NAME, gridMessage.toString());
-                    System.out.println("✅ GRID Nachricht gesendet: " + gridMessage.toString());
+                    System.out.println("GRID Nachricht gesendet: " + gridMessage.toString());
                 } catch (Exception e) {
-                    System.err.println("❌ Fehler beim Senden der GRID-Nachricht: " + e.getMessage());
+                    System.err.println("Fehler beim Senden der GRID-Nachricht: " + e.getMessage());
                 }
             }
         }, 0, 15000); //every 15s

@@ -61,9 +61,9 @@ public class UserMessageGenerator {
                     msg.put("datetime", LocalDateTime.now().toString());
 
                     rabbitTemplate.convertAndSend(QUEUE_NAME, msg.toString());
-                    System.out.println("✅ Gesendet: " + msg.toString());
+                    System.out.println("Gesendet: " + msg.toString());
                 } catch (Exception e) {
-                    System.err.println("❌ Fehler beim Senden der Message: " + e.getMessage());
+                    System.err.println("Fehler beim Senden der Message: " + e.getMessage());
                 }
             }
         }, 0, 7000); //7s

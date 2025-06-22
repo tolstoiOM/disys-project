@@ -7,7 +7,7 @@ public class Main {
             try {
                 UserMessageGenerator.main(args);
             } catch (Exception e) {
-                System.err.println("❌ Fehler im UserMessageGenerator: " + e.getMessage());
+                System.err.println("Fehler im UserMessageGenerator: " + e.getMessage());
             }
         });
 
@@ -16,7 +16,7 @@ public class Main {
             try {
                 ProducerMessageGenerator.main(args);
             } catch (Exception e) {
-                System.err.println("❌ Fehler im ProducerMessageGenerator: " + e.getMessage());
+                System.err.println("Fehler im ProducerMessageGenerator: " + e.getMessage());
             }
         });
 
