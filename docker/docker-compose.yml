@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   database:
     image: postgres:alpine
@@ -6,9 +8,16 @@ services:
     environment:
       - POSTGRES_USER=disysuser
       - POSTGRES_PASSWORD=disyspw
-  
+      - POSTGRES_DB=energydb
+    volumes:
+      - database-data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d  
+
   rabbitmq:
     image: rabbitmq:management-alpine
     ports:
       - '5672:5672'
       - '15672:15672'
+
+volumes:
+  database-data:
