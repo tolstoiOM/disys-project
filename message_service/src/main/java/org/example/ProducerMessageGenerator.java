@@ -74,7 +74,7 @@ public class ProducerMessageGenerator {
                     System.err.println("Fehler beim Senden der Message: " + e.getMessage());
                 }
             }
-        }, 0, 10000); //10s
+        }, 0, 5000); // every 5s
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
